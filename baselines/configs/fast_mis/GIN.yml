@@ -1,0 +1,39 @@
+RUN_NAME: 'GIN'
+ALGORITHM: 'fast_mis'
+MODEL:
+  DECODER_USE_LAST_HIDDEN: True
+  PROCESSOR_USE_LAST_HIDDEN: True
+  PROCESSOR:
+    NAME: "GINConv"
+    KWARGS: [{"layers":2, "train_eps":True, "dropout":0.0, "use_bn": True, "aggr": "max"}]
+    LAYERNORM:
+      ENABLE: True
+      MODE: "node"
+  GRU:
+    ENABLE: True
+
+TRAIN:
+  LOSS:
+    OUTPUT_LOSS_WEIGHT: 1.0
+    HINT_LOSS_WEIGHT: 0.0
+    HIDDEN_LOSS_WEIGHT: 0.01
+  MAX_EPOCHS: 100
+  BATCH_SIZE: 8
+
+  ENABLE: True
+  NUM_WORKERS: 2
+  EARLY_STOPPING_PATIENCE: 30
+  OPTIMIZER:
+    LR: 0.0004239
+
+  SCHEDULER:
+    ENABLE: True
+    NAME: "ReduceLROnPlateau"
+    PARAMS: [{"mode": "min", "factor": 0.1, "patience": 10, "verbose": True}]
+
+TEST:
+  BATCH_SIZE: 4
+
+LOGGING:
+  WANDB:
+    GROUP: 'fast_mis_2'

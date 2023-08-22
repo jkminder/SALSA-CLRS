@@ -13,6 +13,9 @@ import os
 from torch_geometric.data import Data, Dataset, Batch
 import multiprocessing as mp
 from collections import defaultdict
+from huggingface_hub import hf_hub_download
+import zipfile
+import math
 
 from tqdm.auto import tqdm, trange
 
@@ -22,7 +25,83 @@ from loguru import logger
 
 import torch
 
-from .sampler import build_sampler
+from .sampler import build_sampler, SAMPLERS
+
+def er_probabilities(n):
+    base = math.log(n) / n
+    return (base * 1, base * 3)
+
+__ws_k = [
+    4,6,8
+]
+
+
+SALSA_CLRS_DATASETS = {
+    "test": {
+        "er_16": { "p_range": er_probabilities(16), "n": 16 },
+        "er_80": { "p_range": er_probabilities(80), "n": 80 },
+        "er_160": { "p_range": er_probabilities(160), "n": 160 },
+        "er_800": { "p_range": er_probabilities(800), "n": 800 },
+        "er_1600": { "p_range": er_probabilities(1600), "n": 1600 },
+        "ws_16": { "p_range": (0.05, 0.2), "k": [4,6,8], "n": 16 },
+        "ws_80": { "p_range": (0.05, 0.2), "k": [4,6,8], "n": 80 },
+        "ws_160": { "p_range": (0.05, 0.2), "k": [4,6,8], "n": 160 },
+        "ws_800": { "p_range": (0.05, 0.2), "k": [4,6,8], "n": 800 },
+        "ws_1600": { "p_range": (0.05, 0.2), "k": [4,6,8], "n": 1600 },
+        "delaunay_16": { "n": 16 },
+        "delaunay_80": { "n": 80 },
+        "delaunay_160": { "n": 160 },
+        "delaunay_800": { "n": 800 },
+        "delaunay_1600": { "n": 1600 },
+    },
+    "val": { "p_range": er_probabilities(16), "n": 16 },
+    "train": {'p_range': er_probabilities(16), 'n':[4, 7, 11, 13, 16]}
+}
+
+def __dataset_available(algorithm, split, local_dir):
+    if not osp.exists(osp.join(local_dir, algorithm, split)):
+        return False
+    
+    datasets = os.listdir(osp.join(local_dir, algorithm, split))
+    if split == "test" and len(datasets) < len(SALSA_CLRS_DATASETS["test"]):
+        return False
+    else:
+        req_len = 10002 if split == "train" else 1002 # samples + 2 metadata files
+        for dataset in datasets:
+            if len(os.listdir(osp.join(local_dir, algorithm, split, dataset, "processed"))) != req_len:
+                return False
+        return True
+
+def load_dataset(algorithm, split, local_dir):
+    """Load the SALSA-CLRS dataset for the given algorithm and split.
+    
+    Args:
+        algorithm (str): The algorithm to get the dataset for.
+        split (str): The split to get the dataset for.
+        local_dir (str): The directory to download the dataset to.
+    """
+    if algorithm not in SAMPLERS:
+        raise ValueError(f"Unknown algorithm '{algorithm}'. Available algorithms are {list(SAMPLERS.keys())}.")
+
+    if split not in SALSA_CLRS_DATASETS:
+        raise ValueError(f"Unknown split '{split}'. Available splits are {list(SALSA_CLRS_DATASETS.keys())}.")
+    
+    # check if the dataset is already downloaded
+    if not __dataset_available(algorithm, split, local_dir):
+        logger.info(f"Downloading dataset for algorithm '{algorithm}'...")
+        hf_hub_download(repo_id="SALSA-CLRS/SALSA-CLRS", filename=f"{algorithm}.zip", repo_type="dataset", local_dir = local_dir)
+
+        logger.info(f"Extracting dataset...")
+        with zipfile.ZipFile(osp.join(local_dir, f"{algorithm}.zip"), 'r') as zip_ref:
+            zip_ref.extractall(local_dir)
+        
+    if split == "test":
+        return {k: SALSACLRSDataset(ignore_all_hints=True, root=local_dir, split="test", algorithm=algorithm, num_samples=1000, graph_generator=k.split("_")[0], graph_generator_kwargs=SALSA_CLRS_DATASETS["test"][k], nickname=k) for k in SALSA_CLRS_DATASETS["test"]}
+    elif split == "val":
+        return SALSACLRSDataset(ignore_all_hints=True, root=local_dir, split="val", algorithm=algorithm, num_samples=1000, graph_generator="er", graph_generator_kwargs=SALSA_CLRS_DATASETS["val"])
+    else:
+        return SALSACLRSDataset(ignore_all_hints=False, root=local_dir, split="train", algorithm=algorithm, num_samples=10000, graph_generator="er", graph_generator_kwargs=SALSA_CLRS_DATASETS["train"])
+
 
 class NotSparseError(Exception):
     """Raised when the data is not sparse."""
@@ -194,8 +273,6 @@ class SALSACLRSDataset(Dataset):
         self.graph_generator = graph_generator
         self.graph_generator_kwargs = graph_generator_kwargs
         self.max_cores = max_cores if max_cores is not None else mp.cpu_count()
-
-        logger.info(f"Collecting {split} dataset for {algorithm} with {num_samples} samples")
         
         self.sampler, self.specs = build_sampler(algorithm, graph_generator, graph_generator_kwargs, **kwargs)
 

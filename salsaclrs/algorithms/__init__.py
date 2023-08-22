@@ -3,7 +3,7 @@ from .mis import fast_mis_2
 from .eccentricity import eccentricity, eccentricity_path
 
 LOCAL_ALGORITHMS = {
-    'fast_mis_2': fast_mis_2,
+    'fast_mis': fast_mis_2,
     'eccentricity': eccentricity,
     'eccentricity_path': eccentricity_path
 }

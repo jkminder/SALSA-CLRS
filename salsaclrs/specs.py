@@ -2,7 +2,7 @@ from clrs._src.specs import Stage, Location, Type, SPECS
 
 SPECS = dict(SPECS)
 SPECS.update({
-    'fast_mis_2': {
+    'fast_mis': {
         'pos': (Stage.INPUT, Location.NODE, Type.SCALAR),
         'randomness': (Stage.INPUT, Location.NODE, Type.SCALAR),
         'Ain_h': (Stage.HINT, Location.EDGE, Type.MASK),

@@ -285,15 +285,15 @@ def build_sampler(
 
 SAMPLERS = {
     'dfs': DfsSampler,
-    'articulation_points': ArticulationSampler,
-    'bridges': ArticulationSampler,
+    # 'articulation_points': ArticulationSampler,
+    # 'bridges': ArticulationSampler,
     'bfs': BfsSampler,
-    'mst_kruskal': MSTSampler,
+    # 'mst_kruskal': MSTSampler,
     'mst_prim': BellmanFordSampler,
-    'bellman_ford': BellmanFordSampler,
+    # 'bellman_ford': BellmanFordSampler,
     'dijkstra': BellmanFordSampler,
-    'fast_mis_2': MISSampler,
+    'fast_mis': MISSampler,
     'eccentricity': BfsSampler,
-    'eccentricity_path': BfsSampler,
+    # 'eccentricity_path': BfsSampler,
 }
 
