@@ -25,7 +25,7 @@ test_datasets = load_dataset(algorithm="bfs", split="val", local_dir="path/to/lo
 # E.g. get the ER test set on 16 nodes
 er_16 = test_datasets["er_16"]
 ```
-All of the returned objects are of type `SALSACLRSDataset`, a PyG dataset.
+All of the returned objects are of type `SALSACLRSDataset`, a PyG dataset. With `ds.specs` you can get the types and specifications for an individual datapoint, similar to specs in CLRS. 
 
 ## Generating datasets
 You can also generate new datasets according to your own requirements. A BFS train dataset with 10000 samples on "er" graphs with n in [16, 32] and p sampled from the range (0.1,0.3):
