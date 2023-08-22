@@ -25,7 +25,7 @@ logger.add(sys.stderr, level="INFO")
 
 
 def train(model, datamodule, cfg, enable_wandb, specs, seed=42, checkpoint_dir=None):
-    if not enable_wandb:
+    if enable_wandb:
         wandblogger = pl.loggers.WandbLogger(project=cfg.LOGGING.WANDB.PROJECT, entity=cfg.LOGGING.WANDB.ENTITY, group=cfg.LOGGING.WANDB.GROUP, name=cfg.RUN_NAME+"-"+str(args.seed))
     else:
         wandblogger = None
@@ -101,7 +101,7 @@ def train(model, datamodule, cfg, enable_wandb, specs, seed=42, checkpoint_dir=N
 def load_ds(cfg, DATA_DIR):
     train_ds = load_dataset(cfg.ALGORITHM, "train", DATA_DIR)
     val_ds = load_dataset(cfg.ALGORITHM, "val", DATA_DIR)
-    test_datasets = load_test_datasets(cfg.ALGORITHM, "test", DATA_DIR) # dict of datasets
+    test_datasets = load_dataset(cfg.ALGORITHM, "test", DATA_DIR) # dict of datasets
     return train_ds, val_ds, list(test_datasets.values())
 
 if __name__ == '__main__':
