@@ -83,7 +83,7 @@ trainer.fit(model, data_module)
 
 # Baselines
 
-To rerun our experiments, run the `run_experiment.py` script in the `baselines` folder. You need to specify a seed and a data directory (the datasets and checkpoints will be stored there). You also need to specify an experiment configuration file, stored in the `configs` folder. The configuration file specifies the architecture, training details as well as the algorithm, e.g. for the GIN(E) experiment for dijkstra use `baselines/configs/dijkstra/GINE.yml`. Lasty, if you want to train with hints add the `--hints` flag to the script. If you want to log to [WANDB](https://wandb.ai) add the flag `--enable-wandb`, but be sure to specify your WANDB entity in the config file (`LOGGING.WANDB.ENTITY`). 
+For the experiments a couple of more dependencies are required. Install them from `baselines/requirements.txt`. To rerun our experiments, run the `run_experiment.py` script in the `baselines` folder. You need to specify a seed and a data directory (the datasets and checkpoints will be stored there). You also need to specify an experiment configuration file, stored in the `configs` folder. The configuration file specifies the architecture, training details as well as the algorithm, e.g. for the GIN(E) experiment for dijkstra use `baselines/configs/dijkstra/GINE.yml`. Lasty, if you want to train with hints add the `--hints` flag to the script. If you want to log to [WANDB](https://wandb.ai) add the flag `--enable-wandb`, but be sure to specify your WANDB entity in the config file (`LOGGING.WANDB.ENTITY`). 
 ```bash
 python baselines/run_experiment.py --cfg baselines/configs/dijkstra/GINE.yml --seed 42 --data-dir path/to/data/store --enable-wandb --hints
 ```

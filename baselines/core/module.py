@@ -110,9 +110,7 @@ class CLRSModel(pl.LightningModule):
         out = {"optimizer": optimizer, "monitor": "val/loss/0", "interval": "step", "frequency": 1}
         if self.cfg.TRAIN.SCHEDULER.ENABLE:
             try:
-                main_scheduler = getattr(torch.optim.lr_scheduler, self.cfg.TRAIN.SCHEDULER.NAME)(optimizer, **self.cfg.TRAIN.SCHEDULER.PARAMS[0])
-                else:
-                    scheduler = main_scheduler
+                scheduler = getattr(torch.optim.lr_scheduler, self.cfg.TRAIN.SCHEDULER.NAME)(optimizer, **self.cfg.TRAIN.SCHEDULER.PARAMS[0])
                 out["lr_scheduler"] = scheduler
                 out['monitor'] = 'val/loss/0'
                 

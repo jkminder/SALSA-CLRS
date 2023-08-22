@@ -89,7 +89,7 @@ def load_dataset(algorithm, split, local_dir):
     # check if the dataset is already downloaded
     if not __dataset_available(algorithm, split, local_dir):
         logger.info(f"Downloading dataset for algorithm '{algorithm}'...")
-        hf_hub_download(repo_id="SALSA-CLRS/SALSA-CLRS", filename=f"{algorithm}.zip", repo_type="dataset", local_dir = local_dir)
+        hf_hub_download(repo_id="SALSA-CLRS/SALSA-CLRS", filename=f"{algorithm}.zip", repo_type="dataset", local_dir = local_dir, local_dir_use_symlinks=False)
 
         logger.info(f"Extracting dataset...")
         with zipfile.ZipFile(osp.join(local_dir, f"{algorithm}.zip"), 'r') as zip_ref:
