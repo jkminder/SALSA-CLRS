@@ -21,4 +21,4 @@ dependencies = {file = ["requirements.txt"]}
 
 
 [tool.setuptools]
-packages = ["salsaclrs"]
+packages = ["salsaclrs", "salsaclrs.algorithms"]

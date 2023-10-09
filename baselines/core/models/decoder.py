@@ -172,12 +172,23 @@ class Decoder(nn.Module):
     
 def grab_outputs(hints, batch):
     output = {}
-    final_node_idx = (batch.length[batch.batch]-1)
     for k in hints:
         k_out = k.replace('_h', '')
         if k_out in batch.outputs:
-            if k in batch.edge_attrs():
-                output[k_out] = hints[k][torch.arange(batch.num_edges), final_node_idx[batch.edge_index[0]]]
-            else:
-                output[k_out] = hints[k][torch.arange(batch.num_nodes), final_node_idx]
+            output[k_out] = hints[k]
     return output
+
+def output_mask(batch, step):
+    final_node_idx = (batch.length[batch.batch]-1)
+
+    masks = {}
+    for key in batch.outputs:
+        if key in batch.edge_attrs():
+            final_edge_idx = final_node_idx[batch.edge_index[0]]
+            masks[key] = final_edge_idx == step
+        elif key in batch.node_attrs():
+            masks[key] = final_node_idx == step
+        else:
+            # graph attribute
+            masks[key] = batch.length == step
+    return masks

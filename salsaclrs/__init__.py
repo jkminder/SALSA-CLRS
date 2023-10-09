@@ -7,7 +7,6 @@ from .data import DynamicDataset
 from .data import CLRSDataLoader
 from .data import load_dataset
 from .specs import SPECS
-from .algorithms import *
 from .sampler import SAMPLERS
 
 ALGORITHMS = list(SAMPLERS.keys())

@@ -4,7 +4,7 @@ from inspect import signature
 from loguru import logger
 
 from .encoder import Encoder
-from .decoder import Decoder, grab_outputs
+from .decoder import Decoder, grab_outputs, output_mask
 from .processor import Processor
 from ..utils import stack_hidden   
 
@@ -47,6 +47,7 @@ class EncodeProcessDecode(torch.nn.Module):
         input_hidden, randomness = self.encoder(batch)
         max_len = batch.length.max().item()
         hints = []
+        output = None
 
         # Process for length
         hidden = input_hidden
@@ -59,13 +60,24 @@ class EncodeProcessDecode(torch.nn.Module):
             if self.training and self.cfg.TRAIN.LOSS.HINT_LOSS_WEIGHT > 0.0:
                 hints.append(self.decoder(stack_hidden(input_hidden, hidden, last_hidden, self.cfg.MODEL.DECODER_USE_LAST_HIDDEN), batch, 'hints'))
 
+            # Check if output needs to be constructed
+            if (batch.length == step+1).sum() > 0:
+                # Decode outputs
+                if self.training and self.cfg.TRAIN.LOSS.HINT_LOSS_WEIGHT > 0.0:
+                    # The last hint is the output, no need to decode again, its the same decoder
+                    output_step = grab_outputs(hints[-1], batch)
+                else:
+                    output_step = self.decoder(stack_hidden(input_hidden, hidden, last_hidden, self.cfg.MODEL.DECODER_USE_LAST_HIDDEN), batch, 'outputs')
+                
+                # Mask output
+                mask = output_mask(batch, step)   
+                if output is None:
+                    output = {k: output_step[k]*mask[k] for k in output_step}
+                else:
+                    for k in output_step:
+                        output[k][mask[k]] = output_step[k][mask[k]]
+
         hints = stack_hints(hints)
-        # Decode outputs
-        if self.training and self.cfg.TRAIN.LOSS.HINT_LOSS_WEIGHT > 0.0 and False: # some bug here, no time to fix, just decode again
-            # The last hint is the output, no need to decode again, its the same decoder
-            output = grab_outputs(hints, batch)
-        else:
-            output = self.decoder(stack_hidden(input_hidden, hidden, last_hidden, self.cfg.MODEL.DECODER_USE_LAST_HIDDEN), batch, 'outputs')
 
         return output, hints, hidden
 

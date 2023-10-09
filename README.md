@@ -55,7 +55,7 @@ When adding the flag `hints=False` the dataset will generate the hints, but not 
 Due to the hints you need to use the provided `CLRSDataLoader` instead of the default PyG `DataLoader`. This makes sure that batches are correctly collated. The API stays exactly the same.
 ```python
 from salsaclrs import CLRSDataLoader
-dl = CLRSDataLoader(ds, batch_size=32, workers=...)
+dl = CLRSDataLoader(ds, batch_size=32, num_workers=...)
 ```
 
 ## Pytorch Lightning
