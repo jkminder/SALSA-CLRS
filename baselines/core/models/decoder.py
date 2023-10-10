@@ -166,11 +166,13 @@ class Decoder(nn.Module):
                 dkey = key.replace('_h', '')
             else:
                 dkey = key
+
             output[key] = self.decoder[dkey](hidden, edge_index=batch.edge_index, batch_assignment=batch.batch)
         return output
 
     
 def grab_outputs(hints, batch):
+    """This function grabs the outputs from the batch and returns them in the same format as the hints"""
     output = {}
     for k in hints:
         k_out = k.replace('_h', '')
@@ -190,5 +192,5 @@ def output_mask(batch, step):
             masks[key] = final_node_idx == step
         else:
             # graph attribute
-            masks[key] = batch.length == step
+            masks[key] = batch.length == step + 1
     return masks

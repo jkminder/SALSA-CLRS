@@ -113,7 +113,7 @@ def _get_processor(name):
         return _gine_module
     elif name == "GRUConv":
         return _gruconv_module
-    elif name == "GRUMLPConv":
+    elif name == "RecGNNConv": # initially called GRUMLPConv
         return _grumlpconv_module
     else:
         raise ValueError(f"Unknown processor {name}")
