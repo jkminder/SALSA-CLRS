@@ -250,7 +250,7 @@ class SALSACLRSDataset(Dataset):
                  num_samples = 1000,
                  verify_duplicates = False,
                  forbidden_duplicates_datasets = [],
-                 hints=True, ignore_all_hints=False, nickname=None, graph_generator="er", graph_generator_kwargs={"n": 16, "p": 0.1},max_cores=None, **kwargs):
+                 hints=True, ignore_all_hints=False, nickname=None, graph_generator="er", graph_generator_kwargs={"n": 16, "p": 0.1},max_cores=-1, **kwargs):
         """ Dataset for SALSA CLRS problems.
 
         Args:
@@ -265,7 +265,7 @@ class SALSACLRSDataset(Dataset):
             nickname (str): Optional nickname for the dataset (mainly intended for logging purposes).
             graph_generator (str): Name of the graph generator to use. 
             graph_generator_kwargs (dict): Keyword arguments to pass to the graph generator.
-            max_cores (int): Maximum number of cores to use for multiprocessing. If -1, it is serial.
+            max_cores (int): Maximum number of cores to use for multiprocessing. If -1, it is serial. If None, it is the number of cores on the machine (default: -1)
             **kwargs: Keyword arguments to pass to the algorithm sampler.
         """
         self.algorithm = algorithm
@@ -339,10 +339,41 @@ class SALSACLRSDataset(Dataset):
                 for idx in range(len(dataset)):
                     _dataset[dataset[idx].edge_index.shape].append(dataset[idx].edge_index)
 
-        # We don't compute the full batch at once to safe on memory (mainly relevant for hints and long algo iterations)
-        with mp.Pool(processes=self.max_cores) as pool: 
+        if self.max_cores != 0:
+            # We don't compute the full batch at once to safe on memory (mainly relevant for hints and long algo iterations)
+            with mp.Pool(processes=self.max_cores) as pool: 
+                while i < self.num_samples:
+                    for data in pool.imap_unordered(self._get_sample, range(min(500, self.num_samples - len(generated_data))), chunksize=1):
+                        generated_data.append(data)
+                        pb.update(1)
+    
+                    for idx in range(len(generated_data)):
+                        while (True):
+                            data = generated_data[idx]
+                            if self.verify_duplicates:
+                                if self._is_duplicate(data, _dataset[data.edge_index.shape]):
+                                    inp, outp, hints = self.sampler.next()
+                                    generated_data[idx] = to_sparse_data(inp, hints, outp, not self.ignore_all_hints)
+                                    continue
+                                else:
+                                    _dataset[data.edge_index.shape].append(data.edge_index)
+                                    break
+                            else:
+                                break
+
+                        if self.pre_filter is not None and not self.pre_filter(data):
+                            continue
+
+                        if self.pre_transform is not None:
+                            data = self.pre_transform(data)
+
+                        torch.save(data, osp.join(self.processed_dir, f'data_{i}.pt'))
+                        i += 1
+
+                    generated_data = []
+        else:
             while i < self.num_samples:
-                for data in pool.imap_unordered(self._get_sample, range(min(500, self.num_samples - len(generated_data))), chunksize=5):
+                for data in map(self._get_sample, range(min(500, self.num_samples - len(generated_data)))):
                     generated_data.append(data)
                     pb.update(1)
    
@@ -370,7 +401,7 @@ class SALSACLRSDataset(Dataset):
                     i += 1
 
                 generated_data = []
-
+                
     def len(self):
         return len(self.processed_file_names)
 
