@@ -9,6 +9,74 @@ from loguru import logger
 
 from ..utils import stack_hidden
 
+import torch_geometric.nn as pyg_nn
+from inspect import signature
+from loguru import logger
+import torch
+import torch.nn as nn
+
+######################
+
+class PGN(pyg_nn.MessagePassing):
+    """Adapted from https://github.com/google-deepmind/clrs/blob/64e016998f14305f94cf3f6d19ac9d7edc39a185/clrs/_src/processors.py#L330"""
+    def __init__(self, in_channels, out_channels, aggr, mid_act=None, activation=nn.ReLU()):
+        super(PGN, self).__init__(aggr=aggr)
+        logger.info(f"PGN: in_channels: {in_channels}, out_channels: {out_channels}")
+        self.in_channels = in_channels
+        self.mid_channels = out_channels
+        self.mid_act = mid_act
+        self.out_channels = out_channels
+        self.activation = activation
+
+        # Message MLPs
+        self.m_1 = nn.Linear(in_channels, self.mid_channels) # source node
+        self.m_2 = nn.Linear(in_channels, self.mid_channels) # target node
+        
+        self.msg_mlp = nn.Sequential(
+            nn.ReLU(),
+            nn.Linear(self.mid_channels, self.mid_channels),
+            nn.ReLU(),
+            nn.Linear(self.mid_channels, self.mid_channels)
+        )
+
+        # Edge weight scaler
+        self.edge_weight_scaler = nn.Linear(1, self.mid_channels)
+
+        # Output MLP
+        self.o1 = nn.Linear(in_channels, out_channels) # skip connection
+        self.o2 = nn.Linear(self.mid_channels, out_channels)
+
+        
+        # We do not support graph level features for now
+
+    def forward(self, x, edge_index, edge_weight=None):
+        out = self.propagate(edge_index, x=x, edge_weight=edge_weight)
+        h_1 = self.o1(x)
+        h_2 = self.o2(out)
+        out = h_1 + h_2
+        if self.activation is not None:
+            out = self.activation(out)
+        return out
+    
+    def message(self, x_j, x_i, edge_weight=None):
+        # j is source, i is target
+        msg_1 = self.m_1(x_j)
+        msg_2 = self.m_2(x_i)
+        
+        
+        msg = msg_1 + msg_2        
+        if edge_weight is not None:
+            msg_e = self.edge_weight_scaler(edge_weight.reshape(-1, 1))
+            msg = msg + msg_e
+        
+        msg = self.msg_mlp(msg)
+
+
+        if self.mid_act is not None:
+            msg = self.mid_act(msg)
+
+        return msg
+
 ######################
 # Modules from https://github.com/floriangroetschla/Recurrent-GNNs-for-algorithm-learning/blob/main/model.py
 # Adapted to work with edge weights
@@ -115,6 +183,8 @@ def _get_processor(name):
         return _gruconv_module
     elif name == "RecGNNConv": # initially called GRUMLPConv
         return _grumlpconv_module
+    elif name == "PGN":
+        return PGN
     else:
         raise ValueError(f"Unknown processor {name}")
     

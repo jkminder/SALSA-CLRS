@@ -1,16 +1,16 @@
-RUN_NAME: 'GIN'
-ALGORITHM: 'dfs'
+RUN_NAME: 'PGN'
+ALGORITHM: 'fast_mis'
 MODEL:
   DECODER_USE_LAST_HIDDEN: True
   PROCESSOR_USE_LAST_HIDDEN: True
   PROCESSOR:
-    NAME: "GINConv"
-    KWARGS: [{"layers":2, "train_eps":True, "dropout":0.0, "use_bn": True, "aggr": "max"}]
+    NAME: "PGN"
+    KWARGS: [{"aggr": "max"}]
     LAYERNORM:
       ENABLE: True
       MODE: "node"
   GRU:
-    ENABLE: True
+    ENABLE: False
 
 TRAIN:
   LOSS:
@@ -36,4 +36,4 @@ TEST:
 
 LOGGING:
   WANDB:
-    GROUP: 'dfs'
+    GROUP: 'fast_mis'

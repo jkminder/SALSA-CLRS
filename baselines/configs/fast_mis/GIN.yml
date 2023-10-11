@@ -21,7 +21,7 @@ TRAIN:
   BATCH_SIZE: 8
 
   ENABLE: True
-  NUM_WORKERS: 2
+  NUM_WORKERS: 4
   EARLY_STOPPING_PATIENCE: 30
   OPTIMIZER:
     LR: 0.0004239
@@ -32,7 +32,7 @@ TRAIN:
     PARAMS: [{"mode": "min", "factor": 0.1, "patience": 10, "verbose": True}]
 
 TEST:
-  BATCH_SIZE: 4
+  BATCH_SIZE: 8
 
 LOGGING:
   WANDB:
