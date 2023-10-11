@@ -52,10 +52,10 @@ When adding the flag `hints=False` the dataset will generate the hints, but not 
 
 ## DataLoader
 
-Due to the hints you need to use the provided `CLRSDataLoader` instead of the default PyG `DataLoader`. This makes sure that batches are correctly collated. The API stays exactly the same.
+Due to the hints you need to use the provided `SALSACLRSDataLoader` instead of the default PyG `DataLoader`. This makes sure that batches are correctly collated. The API stays exactly the same.
 ```python
-from salsaclrs import CLRSDataLoader
-dl = CLRSDataLoader(ds, batch_size=32, num_workers=...)
+from salsaclrs import SALSACLRSDataLoader
+dl = SALSACLRSDataLoader(ds, batch_size=32, num_workers=...)
 ```
 
 ## Pytorch Lightning
@@ -64,7 +64,7 @@ The library provides a pytorch lightning datamodule, that works with `SALSACLRSD
 
 Example:
 ```python
-from salsaclrs import SALSACLRSDataset, CLRSDataModule
+from salsaclrs import SALSACLRSDataset, SALSACLRSDataModule
 import lightning.pytorch as pl
 
 ds_train = SALSACLRSDataset(root=DATA_DIR, split="train", algorithm="bfs", num_samples=10000, graph_generator="er", ignore_all_hints=False, hints=True, graph_generator_kwargs={"n": [16,32], "p": [0.1, 0.2,0.3]})
@@ -73,7 +73,7 @@ ds_val = SALSACLRSDataset(root=DATA_DIR, split="val", algorithm="bfs", num_sampl
 ds_test_small = SALSACLRSDataset(root=DATA_DIR, split="val", algorithm="bfs", num_samples=100, graph_generator="er", ignore_all_hints=False, hints=True, graph_generator_kwargs={"n": [32], "p": [0.1, 0.2,0.3]})
 ds_test_large = SALSACLRSDataset(root=DATA_DIR, split="val", algorithm="bfs", num_samples=100, graph_generator="er", ignore_all_hints=False, hints=True, graph_generator_kwargs={"n": [128], "p": [0.1, 0.2,0.3]})
 
-data_module = CLRSDataModule(train_dataset=ds_train, val_datasets=[ds_val], test_datasets=[ds_test_small, ds_test_large])
+data_module = SALSACLRSDataModule(train_dataset=ds_train, val_datasets=[ds_val], test_datasets=[ds_test_small, ds_test_large])
 ...
 trainer = pl.Trainer(
         ...

@@ -15,7 +15,7 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 
-class CLRSModel(pl.LightningModule):
+class SALSACLRSModel(pl.LightningModule):
     def __init__(self, specs, cfg):
         super().__init__()
         self.hparams.update(cfg)

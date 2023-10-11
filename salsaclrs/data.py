@@ -488,7 +488,7 @@ class CLRSCollater(object):
         return self.collate(batch)
 
 
-class CLRSDataLoader(torch.utils.data.DataLoader):
+class SALSACLRSDataLoader(torch.utils.data.DataLoader):
     r"""A data loader which merges data objects from a
     :class:`torch_geometric.data.Dataset` to a mini-batch..
 pip install importlib-resources
@@ -527,7 +527,7 @@ pip install importlib-resources
                                              exclude_keys), **kwargs)
         
 
-class CLRSDataModule(pl.LightningDataModule):
+class SALSACLRSDataModule(pl.LightningDataModule):
     """A Lightning DataModule for the CLRS dataset."""
     def __init__(self, train_dataset=None, val_datasets=None, test_datasets=None, **kwargs):
         super().__init__()
@@ -559,10 +559,10 @@ class CLRSDataModule(pl.LightningDataModule):
         name = self.test_datasets[idx].nickname
         return name if name else idx
     
-    def dataloader(self, dataset: Dataset, **kwargs) -> CLRSDataLoader:
-        return CLRSDataLoader(dataset, **kwargs)
+    def dataloader(self, dataset: Dataset, **kwargs) -> SALSACLRSDataLoader:
+        return SALSACLRSDataLoader(dataset, **kwargs)
     
-    def train_dataloader(self) -> CLRSDataLoader:
+    def train_dataloader(self) -> SALSACLRSDataLoader:
         if self.reload_every_n_epochs > 0 or isinstance(self.train_dataset, DynamicDataset):
             self.train_dataset.set_epoch(self.trainer.current_epoch)
             ds = self.train_dataset.get()
@@ -570,7 +570,7 @@ class CLRSDataModule(pl.LightningDataModule):
             ds = self.train_dataset
         return self.dataloader(ds, shuffle=True, persistent_workers=True, **self.kwargs)
     
-    def val_dataloader(self) -> CLRSDataLoader:
+    def val_dataloader(self) -> SALSACLRSDataLoader:
         if self._val_dataloaders is None:
             if isinstance(self.val_datasets, list):
                 self._val_dataloaders = [self.dataloader(val_dataset, shuffle=False, persistent_workers=True, **self.kwargs) for val_dataset in self.val_datasets]
@@ -578,7 +578,7 @@ class CLRSDataModule(pl.LightningDataModule):
                 self._val_dataloaders = self.dataloader(self.val_datasets, shuffle=False, persistent_workers=True, **self.kwargs)
         return self._val_dataloaders
     
-    def test_dataloader(self) -> CLRSDataLoader:
+    def test_dataloader(self) -> SALSACLRSDataLoader:
         bs = self.test_batch_size
         kwargs = self.kwargs.copy()
         if bs is not None:

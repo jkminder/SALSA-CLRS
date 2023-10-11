@@ -14,11 +14,11 @@ import argparse
 import os
 import math
 
-from core.module import CLRSModel
+from core.module import SALSACLRSModel
 from core.config import load_cfg
 from core.utils import NaNException
 
-from salsaclrs import CLRSDataModule, load_dataset
+from salsaclrs import SALSACLRSDataModule, load_dataset
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -56,7 +56,7 @@ def train(model, datamodule, cfg, enable_wandb, specs, seed=42, checkpoint_dir=N
     # Load checkpoint
     if cfg.TRAIN.LOAD_CHECKPOINT is not None:
         logger.info(f"Loading checkpoint from {cfg.TRAIN.LOAD_CHECKPOINT}")
-        model = CLRSModel.load_from_checkpoint(cfg.TRAIN.LOAD_CHECKPOINT, cfg=cfg, specs=specs)
+        model = SALSACLRSModel.load_from_checkpoint(cfg.TRAIN.LOAD_CHECKPOINT, cfg=cfg, specs=specs)
 
     # Train
     if cfg.TRAIN.ENABLE:
@@ -73,7 +73,7 @@ def train(model, datamodule, cfg, enable_wandb, specs, seed=42, checkpoint_dir=N
     # Load best model
     if cfg.TRAIN.LOAD_CHECKPOINT is None and cfg.TRAIN.ENABLE:
         logger.info(f"Best model path: {ckpt_cbk.best_model_path}")
-        model = CLRSModel.load_from_checkpoint(ckpt_cbk.best_model_path)
+        model = SALSACLRSModel.load_from_checkpoint(ckpt_cbk.best_model_path)
 
     # Test
     logger.info("Testing best model...")
@@ -136,9 +136,9 @@ if __name__ == '__main__':
     specs = train_ds.specs
     
     # load model
-    datamodule = CLRSDataModule(train_dataset=train_ds,val_datasets=val_ds, test_datasets=test_ds, batch_size=cfg.TRAIN.BATCH_SIZE, num_workers=cfg.TRAIN.NUM_WORKERS, test_batch_size=cfg.TEST.BATCH_SIZE)
+    datamodule = SALSACLRSDataModule(train_dataset=train_ds,val_datasets=val_ds, test_datasets=test_ds, batch_size=cfg.TRAIN.BATCH_SIZE, num_workers=cfg.TRAIN.NUM_WORKERS, test_batch_size=cfg.TEST.BATCH_SIZE)
     datamodule.val_dataloader()
-    model = CLRSModel(specs=train_ds.specs, cfg=cfg)
+    model = SALSACLRSModel(specs=train_ds.specs, cfg=cfg)
 
     ckpt_dir = os.path.join(DATA_DIR, "checkpoints")
     train(model, datamodule, cfg, args.enable_wandb, train_ds.specs, seed = args.seed, checkpoint_dir=ckpt_dir)
