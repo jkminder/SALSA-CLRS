@@ -90,7 +90,7 @@ python baselines/run_experiment.py --cfg baselines/configs/dijkstra/GINE.yml --s
 ```
 You can also run `python baselines/run_experiment.py --help` for more information. The results of the experiment will be logged to WANDB and saved to csv in a `results` folder in the project root.
 
-## VRAM Usage
+## VRAM Usage
 
 Evaluation of the VRAM usage of graphs up to 2 to the power of 15: 
 For SALSA run:
