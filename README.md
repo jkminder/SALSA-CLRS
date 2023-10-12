@@ -8,7 +8,7 @@ Then install SALSA-CLRS
 ```
 pip install . 
 ```
-Note: SALSA-CLRS depends on `dm-clrs` the CLRS Benchmark implementation, which depends on `jax`. If you get "No space left on device" Errors, install CLRS seperately with `pip install dm-clrs`.
+Note: SALSA-CLRS depends on `dm-clrs` the CLRS Benchmark implementation, which depends on `jax`. This might take a while. If you get "No space left on device" Errors, install CLRS seperately with `pip install dm-clrs`.
 
 # SALSA-CLRS Dataset
 
