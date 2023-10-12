@@ -475,7 +475,7 @@ class CLRSCollater(object):
     
 
     def collate(self, batch):
-        if "hints" in batch[0].keys or "randomness" in batch[0].inputs:
+        if "hints" in batch[0].keys() or "randomness" in batch[0].inputs:
             batch = self.normalise_length(batch)
         batch = Batch.from_data_list(batch, self.follow_batch,
                                         self.exclude_keys)
