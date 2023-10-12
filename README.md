@@ -89,3 +89,19 @@ For the experiments a couple of more dependencies are required. Install them fro
 python baselines/run_experiment.py --cfg baselines/configs/dijkstra/GINE.yml --seed 42 --data-dir path/to/data/store --enable-wandb --hints
 ```
 You can also run `python baselines/run_experiment.py --help` for more information. The results of the experiment will be logged to WANDB and saved to csv in a `results` folder in the project root.
+
+## VRAM Usage
+
+Evaluation of the VRAM usage of graphs up to 2 to the power of 15: 
+For SALSA run:
+```
+python baselines/vram-usage/salsa-vram-usage.py --data_dir path/to/data/store
+```
+You can optionally specify a configuration file with `--cfg path/to/config.yml`.
+
+For CLRS run: 
+```
+python baselines/vram-usage/clrs-vram-usage.py --processor_type triplet_mpnn
+```
+
+This will generate files `vram-usage-{clrs-{processor_type}, salsa}.csv` that specify the vram usage for each power of 2 in bytes.
