@@ -1,11 +1,10 @@
 from clrs._src import algorithms
 from .mis import fast_mis_2
-from .eccentricity import eccentricity, eccentricity_path
+from .eccentricity import eccentricity
 
 LOCAL_ALGORITHMS = {
     'fast_mis': fast_mis_2,
     'eccentricity': eccentricity,
-    'eccentricity_path': eccentricity_path
 }
 
 def get_algorithm(name):
