@@ -339,7 +339,7 @@ class SALSACLRSDataset(Dataset):
                 for idx in range(len(dataset)):
                     _dataset[dataset[idx].edge_index.shape].append(dataset[idx].edge_index)
 
-        if self.max_cores != 0:
+        if self.max_cores != -1:
             # We don't compute the full batch at once to safe on memory (mainly relevant for hints and long algo iterations)
             with mp.Pool(processes=self.max_cores) as pool: 
                 while i < self.num_samples:
