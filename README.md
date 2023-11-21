@@ -1,6 +1,6 @@
 # 💃 SALSA-CLRS 💃
 
-Implementation of "SALSA-CLRS: A Sparse and Scalable Benchmark for Algorithmic Reasoning". SALSA-CLRS is an extension to the [original clrs package](https://github.com/deepmind/clrs), prioritizing scalability and the utilization of sparse representations. It provides pytorch based [PyG](https://www.pyg.org) datasets and dataloaders. It uses [loguru](https://loguru.readthedocs.io) for logging.
+Implementation of ["SALSA-CLRS: A Sparse and Scalable Benchmark for Algorithmic Reasoning"](https://arxiv.org/abs/2309.12253). SALSA-CLRS is an extension to the [original clrs package](https://github.com/deepmind/clrs), prioritizing scalability and the utilization of sparse representations. It provides pytorch based [PyG](https://www.pyg.org) datasets and dataloaders. It uses [loguru](https://loguru.readthedocs.io) for logging.
 
 # Installation
 If you want GPU support be sure to install [PyTorch](https://pytorch.org/get-started/locally/) and [PyG](https://www.pyg.org) first. For the experiments you will also need the optional dependencies (torch_scatter, torch_sparse and torch_cluster). 
